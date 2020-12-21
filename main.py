@@ -1,7 +1,25 @@
 import random
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
+def display(data, cluster, S, c):
+    fig = plt.figure()
+    plt.xlim(-20,120)
+    plt.ylim(-20,120)
+    for i in range(len(data)):
+        plt.text(data[i][0],data[i][1], str(cluster[i]), color=plt.cm.Set1(cluster[i]*2 / 10),
+             fontdict={'weight': 'bold', 'size': 7})
+
+    for s in range(len(S)):
+        plt.text(S[s][0], S[s][1], str('C'), color=plt.cm.Set1(s*2 / 10),
+                 fontdict={'weight': 'bold', 'size': 10})
+
+    plt.xticks()
+    plt.yticks()
+    plt.title("Epoch = " + str(c), fontsize=14)
+
+    return fig
 
 # 聚类
 def clustering(data, S):
@@ -22,9 +40,9 @@ def clustering(data, S):
 # 更新质点
 def updated_S(cluster, data, S, k):
     # 创建distances空集，还有记数counts空集
-    m = data[0].shape
+    m = data[0].shape[0]
     distances = [np.zeros(m)] * k
-    counts = [0] * k
+    counts = [np.zeros(m)] * k
 
     # 对于每个点，计算其与其质点的各纬度距离，然后加入到这个质点所属的distance集里
     for i in range(len(cluster)):
@@ -34,15 +52,16 @@ def updated_S(cluster, data, S, k):
 
     # 平均，得出质点应该移动的距离
     S_new = np.true_divide(distances, counts)
+
     # 更新质点
-    S = S + S_new
+    S = S - S_new
 
     return S
 
 
 def distance(p1,p2):
     #计算欧几里得距离
-    return np.sqrt(np.sum(np.power((p1+p2),2)))
+    return np.sqrt(np.sum(np.power((p1-p2),2)))
     #return math.sqrt((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)
 
 
@@ -50,7 +69,7 @@ def distance(p1,p2):
 def main():
     data = []
     # 设定k值
-    k = 3
+    k = 4
 
     # 随机生成数据点
     for _ in range(100):
@@ -85,17 +104,31 @@ def main():
         S.append(data[max_index])
         S_index.append(max_index)
 
-
     # 一直聚类，知道无质点更新
-    S_new = S
-    cluster = None
+    cluster = [0] * len(data)
+    flag = True
+    count = 0
 
-    while S_new == S:
-        S = S_new
+    fig = display(data, cluster, S, 0)
+    plt.show()
+
+    while flag and count < 10:
+        count += 1
+        S_temp = S
         cluster = clustering(data, S)
-        S_new = updated_S(cluster, data, S_new, k)
+        S = updated_S(cluster, data, S, k)
+
+        flag = False
+        for i in range(len(S)):
+            if not (S_temp[i] == S[i]).all():
+                flag = True
+                break
+
+        fig = display(data, cluster, S, count)
+        plt.show()
 
     return cluster
+
 
 
 
