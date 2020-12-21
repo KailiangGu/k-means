@@ -41,8 +41,8 @@ def clustering(data, S):
 def updated_S(cluster, data, S, k):
     # 创建distances空集，还有记数counts空集
     m = data[0].shape[0]
-    distances = [np.zeros(m)] * k
-    counts = [np.zeros(m)] * k
+    distances = np.array([np.zeros(m)] * k)
+    counts = np.array([np.zeros(m)] * k)
 
     # 对于每个点，计算其与其质点的各纬度距离，然后加入到这个质点所属的distance集里
     for i in range(len(cluster)):
@@ -69,7 +69,7 @@ def distance(p1,p2):
 def main():
     data = []
     # 设定k值
-    k = 4
+    k = 3
 
     # 随机生成数据点
     for _ in range(100):
@@ -111,6 +111,8 @@ def main():
 
     fig = display(data, cluster, S, 0)
     plt.show()
+
+    S = np.array(S)
 
     while flag and count < 10:
         count += 1
